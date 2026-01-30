@@ -767,37 +767,43 @@
             }
         }
         
-        // Simulate search API call (in real implementation, this would be a real API call)
+        // Real search API call
         async function simulateSearchAPI(query) {
-            // Simulate API delay
-            await new Promise(resolve => setTimeout(resolve, 1000));
-            
-            // Return mock results (in real implementation, this would come from the backend)
-            return {
-                query: query,
-                results: [
-                    {
-                        id: 'example_1',
-                        content: 'Clawdbot - это продвинутый ассистент с возможностями визуального анализа, обработки естественного языка и управления системами. Он может помочь с анализом данных, автоматизацией задач и созданием интерфейсов.',
-                        metadata: { category: 'system_info', importance: 'high' },
-                        distance: 0.1
+            try {
+                const response = await fetch('http://176.108.253.113:8001/api/search', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
                     },
-                    {
-                        id: 'web_interface_info',
-                        content: 'Clawdbot Web Interface - продвинутый веб-интерфейс для взаимодействия с системой. Включает в себя дашборд с системной информацией, чат с Clawdbot, визуализацию данных измерений почвы, файловый менеджер и панель управления. Доступен по адресу: http://176.108.253.113/advanced_clawdbot_interface.html',
-                        metadata: { category: 'interface', type: 'documentation' },
-                        distance: 0.2
-                    },
-                    {
-                        id: 'soil_analysis_info',
-                        content: 'Система анализа почвы включает измерение температуры, влажности, pH уровня, электропроводности и визуализацию данных.',
-                        metadata: { category: 'application', type: 'soil_analysis' },
-                        distance: 0.3
-                    }
-                ],
-                total_results: 3,
-                timestamp: new Date().toISOString()
-            };
+                    body: JSON.stringify({ 
+                        query: query,
+                        n_results: 5
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    // Преобразуем результаты в нужный формат
+                    const results = data.results.map(result => ({
+                        id: result.id,
+                        content: result.content,
+                        metadata: result.metadata,
+                        distance: 1 - result.similarity  // преобразуем similarity в distance для совместимости
+                    }));
+                    
+                    return {
+                        query: query,
+                        results: results,
+                        total_results: results.length,
+                        timestamp: new Date().toISOString()
+                    };
+                } else {
+                    throw new Error(data.error || 'Неизвестная ошибка');
+                }
+            } catch (error) {
+                throw error;
+            }
         }
         
         // Display search results
@@ -959,7 +965,7 @@
             }
         });
         
-        function sendMessage() {
+        async function sendMessage() {
             const input = document.getElementById('chat-input');
             const message = input.value.trim();
             
@@ -967,8 +973,8 @@
                 addMessage(message, true);
                 input.value = '';
                 
-                // Simulate bot response
-                simulateBotResponse(message);
+                // Send to API and get response
+                await sendToApi(message);
             }
         }
         
@@ -981,29 +987,33 @@
             chatMessages.scrollTop = chatMessages.scrollHeight;
         }
         
-        async function simulateBotResponse(userMessage) {
+        async function sendToApi(userMessage) {
             document.getElementById('typing-indicator').style.display = 'block';
             
-            // Simulate thinking time
-            await new Promise(resolve => setTimeout(resolve, 1000 + Math.random() * 2000));
-            
-            document.getElementById('typing-indicator').style.display = 'none';
-            
-            let response;
-            if (userMessage.toLowerCase().includes('привет') || userMessage.toLowerCase().includes('здравствуй')) {
-                response = "Привет! Рад вас видеть. Я - Clawdbot, продвинутый ассистент с широкими возможностями для анализа данных, управления системами и автоматизации задач.";
-            } else if (userMessage.toLowerCase().includes('анализ') || userMessage.toLowerCase().includes('почва')) {
-                response = "Я могу выполнить комплексный анализ почвы с визуализацией данных. Перейдите на вкладку 'Анализ почвы', чтобы увидеть графики и метрики.";
-            } else if (userMessage.toLowerCase().includes('файлы') || userMessage.toLowerCase().includes('документ')) {
-                response = "Вы можете управлять файлами через вкладку 'Файлы'. Там представлены все доступные файлы и данные.";
-            } else if (userMessage.toLowerCase().includes('управление') || userMessage.toLowerCase().includes('робот')) {
-                response = "Через вкладку 'Управление' вы можете управлять роботом, запускать автоматизацию и выполнять различные операции.";
-            } else {
-                response = "Спасибо за ваше сообщение. В реальной системе я бы обработал ваш запрос и предоставил соответствующий ответ. " +
-                          "Для полноценного взаимодействия с Clawdbot через этот интерфейс требуется настройка API-эндпоинта на сервере.";
+            try {
+                const response = await fetch('http://176.108.253.113:8001/api/chat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ message: userMessage })
+                });
+                
+                const data = await response.json();
+                
+                document.getElementById('typing-indicator').style.display = 'none';
+                
+                if (response.ok) {
+                    addMessage(data.bot_response || 'Ответ сгенерирован с использованием RAG-поиска по базе знаний.', false);
+                } else {
+                    throw new Error(data.error || 'Неизвестная ошибка');
+                }
+            } catch (error) {
+                document.getElementById('typing-indicator').style.display = 'none';
+                
+                // В случае ошибки показываем сообщение об ошибке
+                addMessage(`Ошибка при обработке запроса: ${error.message}. Проверьте подключение к серверу.`, false);
             }
-            
-            addMessage(response, false);
         }
         
         // Simulate various actions
