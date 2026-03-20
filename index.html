@@ -1,1134 +1,138 @@
-<!DOCTYPE html>
-<html lang="ru">
+<!doctype html>
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Clawdbot Advanced Interface</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
-    <style>
-        :root {
-            --primary: #2a5298;
-            --secondary: #1e3c72;
-            --accent: #4CAF50;
-            --dark: #1a1a2e;
-            --light: #f8f9fa;
-            --gray: #6c757d;
-            --success: #28a745;
-            --warning: #ffc107;
-            --danger: #dc3545;
-        }
-        
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-        
-        body {
-            background: linear-gradient(135deg, var(--dark), var(--secondary));
-            color: white;
-            min-height: 100vh;
-            overflow-x: hidden;
-        }
-        
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-        
-        /* Header */
-        header {
-            background: rgba(0, 0, 0, 0.3);
-            backdrop-filter: blur(10px);
-            padding: 15px 20px;
-            border-radius: 15px;
-            margin-bottom: 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-        }
-        
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-        
-        .logo-icon {
-            font-size: 2em;
-            color: var(--accent);
-        }
-        
-        .logo h1 {
-            font-size: 1.8em;
-            background: linear-gradient(45deg, var(--accent), #64B5F6);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-        
-        .status-bar {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-        
-        .status-indicator {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            font-size: 0.9em;
-        }
-        
-        .status-dot {
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            background: var(--success);
-            animation: pulse 2s infinite;
-        }
-        
-        @keyframes pulse {
-            0% { opacity: 1; }
-            50% { opacity: 0.5; }
-            100% { opacity: 1; }
-        }
-        
-        /* Navigation */
-        .nav-tabs {
-            display: flex;
-            background: rgba(0, 0, 0, 0.3);
-            backdrop-filter: blur(10px);
-            border-radius: 15px;
-            padding: 10px;
-            margin-bottom: 20px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-        }
-        
-        .tab-btn {
-            flex: 1;
-            padding: 15px 20px;
-            background: transparent;
-            border: none;
-            color: rgba(255, 255, 255, 0.7);
-            font-size: 1em;
-            cursor: pointer;
-            border-radius: 10px;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-        }
-        
-        .tab-btn.active {
-            background: rgba(76, 175, 80, 0.2);
-            color: white;
-            font-weight: bold;
-        }
-        
-        .tab-btn:hover:not(.active) {
-            background: rgba(255, 255, 255, 0.1);
-            color: white;
-        }
-        
-        /* Dashboard Grid */
-        .dashboard-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 20px;
-            margin-bottom: 20px;
-        }
-        
-        .card {
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            border-radius: 15px;
-            padding: 20px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-        
-        .card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
-        }
-        
-        .card-header {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 15px;
-            padding-bottom: 10px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-        }
-        
-        .card-icon {
-            font-size: 1.5em;
-            color: var(--accent);
-        }
-        
-        .card-title {
-            font-size: 1.2em;
-            font-weight: bold;
-        }
-        
-        /* Chat Interface */
-        .chat-container {
-            display: none;
-            height: 600px;
-            flex-direction: column;
-            background: rgba(0, 0, 0, 0.3);
-            backdrop-filter: blur(10px);
-            border-radius: 15px;
-            overflow: hidden;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-        }
-        
-        .chat-messages {
-            flex: 1;
-            overflow-y: auto;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
-        
-        .message {
-            padding: 15px;
-            border-radius: 15px;
-            max-width: 80%;
-            word-wrap: break-word;
-            animation: fadeIn 0.3s ease-in-out;
-        }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
-        .user-message {
-            background: rgba(76, 175, 80, 0.3);
-            align-self: flex-end;
-            margin-left: auto;
-        }
-        
-        .bot-message {
-            background: rgba(255, 255, 255, 0.2);
-            align-self: flex-start;
-        }
-        
-        .chat-input {
-            display: flex;
-            padding: 20px;
-            background: rgba(0, 0, 0, 0.5);
-            border-top: 1px solid rgba(255, 255, 255, 0.2);
-        }
-        
-        .chat-input input {
-            flex: 1;
-            padding: 15px;
-            border: none;
-            border-radius: 25px;
-            background: rgba(255, 255, 255, 0.1);
-            color: white;
-            font-size: 1em;
-            outline: none;
-        }
-        
-        .chat-input button {
-            padding: 15px 25px;
-            margin-left: 10px;
-            border: none;
-            border-radius: 25px;
-            background: var(--accent);
-            color: white;
-            cursor: pointer;
-            transition: background 0.3s;
-        }
-        
-        .chat-input button:hover {
-            background: #45a049;
-        }
-        
-        /* Soil Analysis */
-        .soil-analysis {
-            display: none;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-        }
-        
-        .chart-container {
-            background: rgba(0, 0, 0, 0.3);
-            backdrop-filter: blur(10px);
-            border-radius: 15px;
-            padding: 20px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-        }
-        
-        /* Stats Grid */
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-            margin-top: 20px;
-        }
-        
-        .stat-card {
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 10px;
-            padding: 15px;
-            text-align: center;
-        }
-        
-        .stat-value {
-            font-size: 2em;
-            font-weight: bold;
-            color: var(--accent);
-            margin: 10px 0;
-        }
-        
-        .stat-label {
-            font-size: 0.9em;
-            color: rgba(255, 255, 255, 0.7);
-        }
-        
-        /* Controls */
-        .controls-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 15px;
-            margin-top: 20px;
-        }
-        
-        .control-btn {
-            padding: 15px;
-            border: none;
-            border-radius: 10px;
-            background: rgba(76, 175, 80, 0.2);
-            color: white;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            font-size: 1em;
-        }
-        
-        .control-btn:hover {
-            background: rgba(76, 175, 80, 0.3);
-            transform: scale(1.05);
-        }
-        
-        /* File Manager */
-        .file-manager {
-            display: none;
-            background: rgba(0, 0, 0, 0.3);
-            backdrop-filter: blur(10px);
-            border-radius: 15px;
-            padding: 20px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-        }
-        
-        .file-list {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-            gap: 15px;
-            margin-top: 15px;
-        }
-        
-        .file-item {
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 10px;
-            padding: 15px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-        
-        .file-item:hover {
-            background: rgba(255, 255, 255, 0.2);
-            transform: translateY(-2px);
-        }
-        
-        .file-icon {
-            font-size: 2em;
-            margin-bottom: 10px;
-            color: var(--accent);
-        }
-        
-        .file-name {
-            font-size: 0.9em;
-            word-break: break-all;
-        }
-        
-        /* Responsive */
-        @media (max-width: 768px) {
-            .nav-tabs {
-                flex-wrap: wrap;
-            }
-            
-            .tab-btn {
-                flex: 0 0 calc(50% - 10px);
-                margin: 5px;
-            }
-            
-            .soil-analysis {
-                grid-template-columns: 1fr;
-            }
-            
-            .dashboard-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-        
-        /* Loading animation */
-        .loading {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 3px solid rgba(255,255,255,.3);
-            border-radius: 50%;
-            border-top-color: var(--accent);
-            animation: spin 1s ease-in-out infinite;
-        }
-        
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-        
-        .typing-indicator {
-            display: none;
-            padding: 10px;
-            text-align: center;
-            color: rgba(255, 255, 255, 0.6);
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Narek — Useful Little Systems</title>
+  <meta name="description" content="Narek builds practical tools: Telegram utilities, mini-CRM systems, dashboards, monitoring interfaces, and useful experiments." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-    <div class="container">
-        <!-- Header -->
-        <header>
-            <div class="logo">
-                <div class="logo-icon">
-                    <i class="fas fa-robot"></i>
-                </div>
-                <h1>Clawdbot Advanced Interface</h1>
-            </div>
-            <div class="status-bar">
-                <div class="status-indicator">
-                    <div class="status-dot"></div>
-                    <span>Подключен</span>
-                </div>
-                <div class="status-indicator">
-                    <i class="fas fa-microchip"></i>
-                    <span id="cpu-usage">CPU: 45%</span>
-                </div>
-                <div class="status-indicator">
-                    <i class="fas fa-memory"></i>
-                    <span id="ram-usage">RAM: 2.1GB</span>
-                </div>
-            </div>
-        </header>
-        
-        <!-- Navigation Tabs -->
-        <div class="nav-tabs">
-            <button class="tab-btn active" data-tab="dashboard">
-                <i class="fas fa-chart-bar"></i>
-                <span>Дашборд</span>
-            </button>
-            <button class="tab-btn" data-tab="chat">
-                <i class="fas fa-comments"></i>
-                <span>Чат</span>
-            </button>
-            <button class="tab-btn" data-tab="soil">
-                <i class="fas fa-seedling"></i>
-                <span>Анализ почвы</span>
-            </button>
-            <button class="tab-btn" data-tab="files">
-                <i class="fas fa-folder"></i>
-                <span>Файлы</span>
-            </button>
-            <button class="tab-btn" data-tab="controls">
-                <i class="fas fa-sliders-h"></i>
-                <span>Управление</span>
-            </button>
-        </div>
-        
-        <!-- Dashboard Tab -->
-        <div id="dashboard" class="dashboard-grid">
-            <!-- System Status Card -->
-            <div class="card">
-                <div class="card-header">
-                    <div class="card-icon">
-                        <i class="fas fa-server"></i>
-                    </div>
-                    <div class="card-title">Системный статус</div>
-                </div>
-                <div class="stats-grid">
-                    <div class="stat-card">
-                        <div class="stat-value">98%</div>
-                        <div class="stat-label">Здоровье</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-value">0.2s</div>
-                        <div class="stat-label">Отклик</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-value">24/7</div>
-                        <div class="stat-label">Время</div>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Recent Activity Card -->
-            <div class="card">
-                <div class="card-header">
-                    <div class="card-icon">
-                        <i class="fas fa-history"></i>
-                    </div>
-                    <div class="card-title">Недавняя активность</div>
-                </div>
-                <div id="activity-list">
-                    <div class="message user-message" style="max-width: 100%; margin-bottom: 10px;">
-                        <small>03:45 - Анализ почвы в теплице</small>
-                    </div>
-                    <div class="message bot-message" style="max-width: 100%;">
-                        <small>03:46 - Визуализация создана</small>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- AI Capabilities Card -->
-            <div class="card">
-                <div class="card-header">
-                    <div class="card-icon">
-                        <i class="fas fa-brain"></i>
-                    </div>
-                    <div class="card-title">AI Возможности</div>
-                </div>
-                <div class="controls-grid">
-                    <button class="control-btn" onclick="simulateAction('voice-recognition')">
-                        <i class="fas fa-microphone"></i> Речь
-                    </button>
-                    <button class="control-btn" onclick="simulateAction('image-analysis')">
-                        <i class="fas fa-camera"></i> Визуал
-                    </button>
-                    <button class="control-btn" onclick="simulateAction('data-analysis')">
-                        <i class="fas fa-chart-line"></i> Анализ
-                    </button>
-                    <button class="control-btn" onclick="simulateAction('automation')">
-                        <i class="fas fa-cogs"></i> Автоматизация
-                    </button>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Chat Tab -->
-        <div id="chat" class="chat-container">
-            <div class="chat-messages" id="chat-messages">
-                <div class="message bot-message">
-                    Привет! Я Clawdbot - ваш продвинутый ассистент. 
-                    <br>Я могу помочь вам с анализом данных, управлением системой и многим другим.
-                    <br>Что вас интересует?
-                </div>
-            </div>
-            <div class="typing-indicator" id="typing-indicator">
-                Clawdbot печатает...
-            </div>
-            <div class="chat-input">
-                <input type="text" id="chat-input" placeholder="Введите ваше сообщение..." autocomplete="off">
-                <button id="send-btn"><i class="fas fa-paper-plane"></i></button>
-            </div>
-        </div>
-        
-        <!-- Soil Analysis Tab -->
-        <div id="soil" class="soil-analysis">
-            <div class="chart-container">
-                <h3>Температура почвы</h3>
-                <div id="temp-chart" style="height: 300px;"></div>
-            </div>
-            <div class="chart-container">
-                <h3>Влажность почвы</h3>
-                <div id="moisture-chart" style="height: 300px;"></div>
-            </div>
-            <div class="chart-container">
-                <h3>pH уровня</h3>
-                <div id="ph-chart" style="height: 300px;"></div>
-            </div>
-            <div class="chart-container">
-                <h3>Электропроводность</h3>
-                <div id="ec-chart" style="height: 300px;"></div>
-            </div>
-        </div>
-        
-        <!-- File Manager Tab -->
-        <div id="files" class="file-manager">
-            <h3>Файловый менеджер</h3>
-            <div class="file-list" id="file-list">
-                <!-- Files will be populated dynamically -->
-            </div>
-        </div>
-        
-        <!-- Controls Tab -->
-        <div id="controls" class="dashboard-grid">
-            <div class="card">
-                <div class="card-header">
-                    <div class="card-icon">
-                        <i class="fas fa-robot"></i>
-                    </div>
-                    <div class="card-title">Управление роботом</div>
-                </div>
-                <div class="controls-grid">
-                    <button class="control-btn" onclick="simulateAction('move-forward')">
-                        <i class="fas fa-arrow-up"></i> Вперед
-                    </button>
-                    <button class="control-btn" onclick="simulateAction('move-backward')">
-                        <i class="fas fa-arrow-down"></i> Назад
-                    </button>
-                    <button class="control-btn" onclick="simulateAction('turn-left')">
-                        <i class="fas fa-arrow-left"></i> Влево
-                    </button>
-                    <button class="control-btn" onclick="simulateAction('turn-right')">
-                        <i class="fas fa-arrow-right"></i> Вправо
-                    </button>
-                    <button class="control-btn" onclick="simulateAction('grab')">
-                        <i class="fas fa-hand-pointer"></i> Хват
-                    </button>
-                    <button class="control-btn" onclick="simulateAction('release')">
-                        <i class="fas fa-hand-paper"></i> Отпуск
-                    </button>
-                </div>
-            </div>
-            
-            <div class="card">
-                <div class="card-header">
-                    <div class="card-icon">
-                        <i class="fas fa-magic"></i>
-                    </div>
-                    <div class="card-title">Автоматизация</div>
-                </div>
-                <div class="controls-grid">
-                    <button class="control-btn" onclick="simulateAction('analyze-soil')">
-                        <i class="fas fa-seedling"></i> Анализ почвы
-                    </button>
-                    <button class="control-btn" onclick="simulateAction('take-picture')">
-                        <i class="fas fa-camera"></i> Снимок
-                    </button>
-                    <button class="control-btn" onclick="simulateAction('record-voice')">
-                        <i class="fas fa-microphone-alt"></i> Аудио
-                    </button>
-                    <button class="control-btn" onclick="simulateAction('generate-report')">
-                        <i class="fas fa-file-alt"></i> Отчет
-                    </button>
-                </div>
-            </div>
-            
-            <div class="card">
-                <div class="card-header">
-                    <div class="card-icon">
-                        <i class="fas fa-shield-alt"></i>
-                    </div>
-                    <div class="card-title">Безопасность</div>
-                </div>
-                <div class="controls-grid">
-                    <button class="control-btn" onclick="simulateAction('scan-area')">
-                        <i class="fas fa-search"></i> Сканировать
-                    </button>
-                    <button class="control-btn" onclick="simulateAction('monitor')">
-                        <i class="fas fa-eye"></i> Мониторинг
-                    </button>
-                    <button class="control-btn" onclick="simulateAction('secure-mode')">
-                        <i class="fas fa-lock"></i> Безопасный режим
-                    </button>
-                    <button class="control-btn" onclick="simulateAction('emergency-stop')">
-                        <i class="fas fa-exclamation-triangle"></i> Стоп
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
+  <div class="bg-glow bg-glow-1"></div>
+  <div class="bg-glow bg-glow-2"></div>
 
-    <script>
-        // Tab switching functionality
-        document.querySelectorAll('.tab-btn').forEach(button => {
-            button.addEventListener('click', () => {
-                // Remove active class from all buttons
-                document.querySelectorAll('.tab-btn').forEach(btn => {
-                    btn.classList.remove('active');
-                });
-                
-                // Add active class to clicked button
-                button.classList.add('active');
-                
-                // Hide all tab content
-                document.querySelectorAll('[id^=dashboard], [id^=chat], [id^=soil], [id^=files], [id^=controls], [id^=search]').forEach(tab => {
-                    tab.style.display = 'none';
-                });
-                
-                // Show selected tab content
-                const tabId = button.getAttribute('data-tab');
-                document.getElementById(tabId).style.display = 'grid';
-                
-                // Special handling for chat tab (flex layout)
-                if (tabId === 'chat') {
-                    document.getElementById(tabId).style.display = 'flex';
-                }
-                
-                // Special handling for search tab
-                if (tabId === 'search') {
-                    document.getElementById(tabId).style.display = 'block';
-                }
-                
-                // Initialize charts when soil tab is shown
-                if (tabId === 'soil') {
-                    initCharts();
-                }
-                
-                // Populate file manager when files tab is shown
-                if (tabId === 'files') {
-                    populateFileManager();
-                }
-            });
-        });
-        
-        // Add search tab to navigation
-        function addSearchTab() {
-            const navTabs = document.querySelector('.nav-tabs');
-            if (!document.querySelector('[data-tab="search"]')) {
-                const searchTabBtn = document.createElement('button');
-                searchTabBtn.className = 'tab-btn';
-                searchTabBtn.setAttribute('data-tab', 'search');
-                searchTabBtn.innerHTML = '<i class="fas fa-search"></i><span>Поиск по знаниям</span>';
-                navTabs.appendChild(searchTabBtn);
-                
-                // Add search tab content
-                const searchTabContent = document.createElement('div');
-                searchTabContent.id = 'search';
-                searchTabContent.style.display = 'none';
-                searchTabContent.innerHTML = `
-                    <div class="card">
-                        <div class="card-header">
-                            <div class="card-icon">
-                                <i class="fas fa-search"></i>
-                            </div>
-                            <div class="card-title">Поиск по базе знаний</div>
-                        </div>
-                        <div style="padding: 20px;">
-                            <div style="display: flex; gap: 10px; margin-bottom: 20px;">
-                                <input type="text" id="search-query" placeholder="Введите запрос для поиска по базе знаний..." style="flex: 1; padding: 12px; border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; background: rgba(255,255,255,0.1); color: white;">
-                                <button id="search-btn" style="padding: 12px 20px; background: var(--accent); color: white; border: none; border-radius: 8px; cursor: pointer;">Поиск</button>
-                            </div>
-                            <div id="search-results" style="min-height: 300px;">
-                                <div style="text-align: center; padding: 40px; color: rgba(255,255,255,0.6);">
-                                    <i class="fas fa-search fa-2x" style="margin-bottom: 15px;"></i>
-                                    <p>Введите запрос для поиска по базе знаний</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                `;
-                document.querySelector('.container').insertBefore(searchTabContent, document.getElementById('dashboard'));
-                
-                // Add event listener to search button
-                document.getElementById('search-btn').addEventListener('click', performSearch);
-                document.getElementById('search-query').addEventListener('keypress', function(e) {
-                    if (e.key === 'Enter') {
-                        performSearch();
-                    }
-                });
-            }
-        }
-        
-        // Function to perform search
-        async function performSearch() {
-            const query = document.getElementById('search-query').value.trim();
-            if (!query) {
-                alert('Пожалуйста, введите запрос для поиска');
-                return;
-            }
-            
-            const resultsContainer = document.getElementById('search-results');
-            resultsContainer.innerHTML = '<div style="text-align: center; padding: 40px;"><div class="loading"></div><p>Поиск в базе знаний...</p></div>';
-            
-            try {
-                // In a real implementation, this would call the actual API
-                // For now, we'll simulate a response
-                const response = await simulateSearchAPI(query);
-                
-                displaySearchResults(response.results, query);
-            } catch (error) {
-                resultsContainer.innerHTML = `<div style="padding: 20px; color: var(--danger);">Ошибка при поиске: ${error.message}</div>`;
-            }
-        }
-        
-        // Autonomous search simulation with realistic results
-        async function simulateSearchAPI(query) {
-            // Имитация задержки для реалистичности
-            await new Promise(resolve => setTimeout(resolve, 800 + Math.random() * 700));
-            
-            // База знаний для симуляции
-            const knowledgeBase = [
-                {
-                    id: 'clawdbot_intro',
-                    content: 'Clawdbot - это продвинутая система искусственного интеллекта с возможностями анализа естественного языка, обработки визуальных данных, управления системами и автоматизации задач. Он может помочь с анализом данных, созданием интерфейсов и интеграцией с внешними системами.',
-                    metadata: { category: 'system_info', type: 'introduction', importance: 'high' },
-                    similarity: 0.95
-                },
-                {
-                    id: 'rag_system',
-                    content: 'RAG (Retrieval-Augmented Generation) - это архитектура, сочетающая извлечение информации и генерацию текста. Она позволяет языковым моделям получать доступ к внешним знаниям и использовать их при создании ответов. Система использует векторную базу данных для хранения знаний и SentenceTransformer для создания эмбеддингов.',
-                    metadata: { category: 'technology', type: 'definition', importance: 'high' },
-                    similarity: 0.92
-                },
-                {
-                    id: 'multimodal_support',
-                    content: 'Мультимодальная RAG-система поддерживает различные форматы файлов: PDF, DOCX, XLSX, CSV, TXT, MD, изображения. Система может обрабатывать текст, таблицы, документы и визуальные данные, индексируя их для последующего поиска и анализа.',
-                    metadata: { category: 'technology', type: 'capability', importance: 'high' },
-                    similarity: 0.88
-                },
-                {
-                    id: 'knowledge_graph',
-                    content: 'Система включает граф знаний для представления связей между сущностями. Это позволяет находить скрытые связи, зависимости и выполнять сложные запросы, требующие понимания отношений между различными концепциями.',
-                    metadata: { category: 'technology', type: 'feature', importance: 'medium' },
-                    similarity: 0.85
-                },
-                {
-                    id: 'web_interface',
-                    content: 'Веб-интерфейс Clawdbot включает дашборд с системной информацией, чат, визуализацию данных измерений почвы, файловый менеджер и панель управления. Интерфейс имеет современный дизайн с эффектами стекла и адаптивный интерфейс.',
-                    metadata: { category: 'interface', type: 'documentation', importance: 'medium' },
-                    similarity: 0.82
-                },
-                {
-                    id: 'soil_analysis',
-                    content: 'Система анализа почвы включает измерение температуры, влажности, pH уровня, электропроводности и визуализацию данных. Данные отображаются в виде интерактивных графиков и могут быть проанализированы для принятия решений.',
-                    metadata: { category: 'application', type: 'soil_analysis', importance: 'medium' },
-                    similarity: 0.78
-                },
-                {
-                    id: 'api_integration',
-                    content: 'Clawdbot поддерживает API для интеграции с внешними системами. Это позволяет подключать его к различным источникам данных, системам управления и другим сервисам. API предоставляет доступ к поиску, генерации ответов и другим функциям.',
-                    metadata: { category: 'integration', type: 'api', importance: 'medium' },
-                    similarity: 0.75
-                }
-            ];
-            
-            // Простой алгоритм поиска похожих документов
-            const queryLower = query.toLowerCase();
-            let results = [];
-            
-            for (const doc of knowledgeBase) {
-                let score = 0;
-                
-                // Проверяем схожесть по содержимому
-                const contentLower = doc.content.toLowerCase();
-                if (contentLower.includes(queryLower)) {
-                    score += 0.8;
-                } else {
-                    // Проверяем отдельные слова
-                    const queryWords = queryLower.split(' ');
-                    for (const word of queryWords) {
-                        if (word.length > 2 && contentLower.includes(word)) {
-                            score += 0.1;
-                        }
-                    }
-                }
-                
-                // Проверяем метаданные
-                const metadataText = Object.values(doc.metadata).join(' ').toLowerCase();
-                if (metadataText.includes(queryLower)) {
-                    score += 0.2;
-                }
-                
-                if (score > 0) {
-                    results.push({
-                        ...doc,
-                        similarity: Math.min(0.99, Math.max(0.1, score + doc.similarity * 0.5))
-                    });
-                }
-            }
-            
-            // Сортируем по релевантности
-            results.sort((a, b) => b.similarity - a.similarity);
-            
-            // Возвращаем топ-5 результатов
-            results = results.slice(0, 5);
-            
-            return {
-                query: query,
-                results: results,
-                total_results: results.length,
-                timestamp: new Date().toISOString()
-            };
-        }
-        
-        // Display search results
-        function displaySearchResults(results, query) {
-            const resultsContainer = document.getElementById('search-results');
-            
-            if (!results || results.length === 0) {
-                resultsContainer.innerHTML = '<div style="padding: 40px; text-align: center; color: rgba(255,255,255,0.6);">Нет результатов для отображения</div>';
-                return;
-            }
-            
-            let resultsHtml = '<div style="display: flex; flex-direction: column; gap: 15px;">';
-            
-            results.forEach((result, index) => {
-                const similarity = (1 - result.distance).toFixed(2);
-                resultsHtml += `
-                    <div class="card" style="margin-bottom: 0;">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-                            <div class="card-title">Результат #${index + 1} (схожесть: ${similarity})</div>
-                            <div style="font-size: 0.8em; color: rgba(255,255,255,0.7);">${result.metadata?.category || 'unknown'}</div>
-                        </div>
-                        <div style="margin-bottom: 10px; line-height: 1.5;">${result.content.substring(0, 300)}${result.content.length > 300 ? '...' : ''}</div>
-                        <div style="font-size: 0.8em; color: rgba(255,255,255,0.7); display: flex; gap: 10px;">
-                            <span>ID: ${result.id}</span>
-                            ${result.metadata?.file_name ? `<span>Файл: ${result.metadata.file_name}</span>` : ''}
-                        </div>
-                    </div>
-                `;
-            });
-            
-            resultsHtml += '</div>';
-            resultsContainer.innerHTML = resultsHtml;
-        }
-        
-        // Add the search tab when the page loads
-        window.addEventListener('DOMContentLoaded', addSearchTab);
-        
-        // Initialize charts
-        function initCharts() {
-            // Temperature chart
-            const tempData = [{
-                x: ['Зона 1', 'Зона 2', 'Зона 3', 'Зона 4', 'Зона 5', 'Зона 6', 'Зона 7', 'Зона 8', 'Зона 9', 'Зона 10', 'Зона 11', 'Зона 12', 'Зона 13', 'Зона 14', 'Зона 15'],
-                y: [18.7, 19.1, 18.5, 18.6, 19.0, 19.7, 19.6, 19.4, 19.1, 19.1, 19.7, 19.0, 19.3, 18.8, 19.5],
-                type: 'bar',
-                marker: {color: '#FF6B6B'}
-            }];
-            
-            const tempLayout = {
-                title: 'Температура почвы (°C)',
-                paper_bgcolor: 'rgba(0,0,0,0)',
-                plot_bgcolor: 'rgba(0,0,0,0)',
-                font: {color: 'white'},
-                xaxis: {tickangle: -45},
-                yaxis: {gridcolor: 'rgba(255,255,255,0.1)'}
-            };
-            
-            Plotly.newPlot('temp-chart', tempData, tempLayout);
-            
-            // Moisture chart
-            const moistureData = [{
-                x: ['Зона 1', 'Зона 2', 'Зона 3', 'Зона 4', 'Зона 5', 'Зона 6', 'Зона 7', 'Зона 8', 'Зона 9', 'Зона 10', 'Зона 11', 'Зона 12', 'Зона 13', 'Зона 14', 'Зона 15'],
-                y: [44.8, 46.5, 48.3, 42.9, 43.8, 43.5, 42.0, 53.0, 44.8, 42.7, 56.7, 57.6, 47.3, 44.2, 44.0],
-                type: 'bar',
-                marker: {color: '#4ECDC4'}
-            }];
-            
-            const moistureLayout = {
-                title: 'Влажность почвы (%)',
-                paper_bgcolor: 'rgba(0,0,0,0)',
-                plot_bgcolor: 'rgba(0,0,0,0)',
-                font: {color: 'white'},
-                xaxis: {tickangle: -45},
-                yaxis: {gridcolor: 'rgba(255,255,255,0.1)'}
-            };
-            
-            Plotly.newPlot('moisture-chart', moistureData, moistureLayout);
-            
-            // pH chart
-            const phData = [{
-                x: ['Зона 1', 'Зона 2', 'Зона 3', 'Зона 4', 'Зона 5', 'Зона 6', 'Зона 7', 'Зона 8', 'Зона 9', 'Зона 10', 'Зона 11', 'Зона 12', 'Зона 13', 'Зона 14', 'Зона 15'],
-                y: [6.1, 5.7, 5.8, 5.9, 6.1, 6.0, 6.0, 5.9, 6.0, 6.2, 6.0, 5.7, 6.1, 6.2, 6.2],
-                type: 'bar',
-                marker: {color: '#45B7D1'}
-            }];
-            
-            const phLayout = {
-                title: 'Уровень pH',
-                paper_bgcolor: 'rgba(0,0,0,0)',
-                plot_bgcolor: 'rgba(0,0,0,0)',
-                font: {color: 'white'},
-                xaxis: {tickangle: -45},
-                yaxis: {gridcolor: 'rgba(255,255,255,0.1)'}
-            };
-            
-            Plotly.newPlot('ph-chart', phData, phLayout);
-            
-            // EC chart
-            const ecData = [{
-                x: ['Зона 1', 'Зона 2', 'Зона 3', 'Зона 4', 'Зона 5', 'Зона 6', 'Зона 7', 'Зона 8', 'Зона 9', 'Зона 10', 'Зона 11', 'Зона 12', 'Зона 13', 'Зона 14', 'Зона 15'],
-                y: [635, 659, 737, 677, 729, 713, 668, 900, 689, 601, 941, 1042, 765, 705, 603],
-                type: 'bar',
-                marker: {color: '#96CEB4'}
-            }];
-            
-            const ecLayout = {
-                title: 'Электропроводность (μS/cm)',
-                paper_bgcolor: 'rgba(0,0,0,0)',
-                plot_bgcolor: 'rgba(0,0,0,0)',
-                font: {color: 'white'},
-                xaxis: {tickangle: -45},
-                yaxis: {gridcolor: 'rgba(255,255,255,0.1)'}
-            };
-            
-            Plotly.newPlot('ec-chart', ecData, ecLayout);
-        }
-        
-        // Populate file manager
-        function populateFileManager() {
-            const fileList = document.getElementById('file-list');
-            fileList.innerHTML = '';
-            
-            // Sample files based on the directory listing seen earlier
-            const files = [
-                {name: 'clawdbot_web_interface.html', type: 'html', icon: 'fa-file-code'},
-                {name: 'soil_analysis_visualization.zip', type: 'zip', icon: 'fa-file-archive'},
-                {name: 'temperature_heatmap.png', type: 'image', icon: 'fa-file-image'},
-                {name: 'soil_analysis_chart.png', type: 'image', icon: 'fa-file-image'},
-                {name: 'soil_measurements.csv', type: 'csv', icon: 'fa-file-csv'},
-                {name: 'gemini_cli.py', type: 'python', icon: 'fa-file-code'},
-                {name: 'create_visualization.py', type: 'python', icon: 'fa-file-code'},
-                {name: 'speech_recognition_script.py', type: 'python', icon: 'fa-file-code'},
-                {name: 'clawdbot_server.py', type: 'python', icon: 'fa-file-code'},
-                {name: 'transcribe_audio.py', type: 'python', icon: 'fa-file-code'},
-                {name: 'simple_transcribe.py', type: 'python', icon: 'fa-file-code'},
-                {name: 'soil_analysis_script.py', type: 'python', icon: 'fa-file-code'}
-            ];
-            
-            files.forEach(file => {
-                const fileItem = document.createElement('div');
-                fileItem.className = 'file-item';
-                fileItem.innerHTML = `
-                    <div class="file-icon">
-                        <i class="fas ${file.icon}"></i>
-                    </div>
-                    <div class="file-name">${file.name}</div>
-                `;
-                fileItem.addEventListener('click', () => {
-                    alert(`Выбран файл: ${file.name}\nТип: ${file.type}`);
-                });
-                fileList.appendChild(fileItem);
-            });
-        }
-        
-        // Chat functionality
-        document.getElementById('send-btn').addEventListener('click', sendMessage);
-        document.getElementById('chat-input').addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                sendMessage();
-            }
-        });
-        
-        async function sendMessage() {
-            const input = document.getElementById('chat-input');
-            const message = input.value.trim();
-            
-            if (message) {
-                addMessage(message, true);
-                input.value = '';
-                
-                // Send to API and get response
-                await sendToApi(message);
-            }
-        }
-        
-        function addMessage(text, isUser = false) {
-            const chatMessages = document.getElementById('chat-messages');
-            const messageDiv = document.createElement('div');
-            messageDiv.className = `message ${isUser ? 'user-message' : 'bot-message'}`;
-            messageDiv.innerHTML = text.replace(/\n/g, '<br>');
-            chatMessages.appendChild(messageDiv);
-            chatMessages.scrollTop = chatMessages.scrollHeight;
-        }
-        
-        async function sendToApi(userMessage) {
-            document.getElementById('typing-indicator').style.display = 'block';
-            
-            // Эмуляция RAG-поиска с задержкой
-            await new Promise(resolve => setTimeout(resolve, 1000 + Math.random() * 1000));
-            
-            document.getElementById('typing-indicator').style.display = 'none';
-            
-            // Определение типа запроса и генерация соответствующего ответа
-            let response;
-            const lowerMessage = userMessage.toLowerCase();
-            
-            if (lowerMessage.includes('привет') || lowerMessage.includes('здравствуй') || lowerMessage.includes('hello')) {
-                response = "Привет! Я - Clawdbot, продвинутый ассистент с широкими возможностями. Я могу помочь с анализом данных, управлением системами и автоматизацией задач. Как я могу вам помочь?";
-            } else if (lowerMessage.includes('rag') || lowerMessage.includes('поиск') || lowerMessage.includes('знан')) {
-                response = "RAG (Retrieval-Augmented Generation) - это архитектура, которая позволяет мне искать информацию в базе знаний и использовать её для генерации ответов. Я могу найти релевантные документы и создать точный ответ на основе них.";
-            } else if (lowerMessage.includes('анализ') || lowerMessage.includes('почва') || lowerMessage.includes('измерен')) {
-                response = "Я могу выполнить комплексный анализ почвы, включая измерение температуры, влажности, pH уровня и электропроводности. Визуализации доступны на вкладке 'Анализ почвы'.";
-            } else if (lowerMessage.includes('файл') || lowerMessage.includes('документ') || lowerMessage.includes('загруз')) {
-                response = "Я поддерживаю работу с различными форматами файлов: PDF, DOCX, XLSX, CSV, TXT, MD и изображениями. Все файлы индексируются для поиска и анализа.";
-            } else if (lowerMessage.includes('граф') || lowerMessage.includes('знаний') || lowerMessage.includes('связ')) {
-                response = "Моя система включает граф знаний для представления связей между различными сущностями. Это позволяет находить скрытые связи и зависимости в данных.";
-            } else if (lowerMessage.includes('api') || lowerMessage.includes('сервер') || lowerMessage.includes('интеграц')) {
-                response = "Я поддерживаю API для интеграции с внешними системами. Это позволяет подключать меня к различным источникам данных и системам управления.";
-            } else {
-                // Генерация случайного информативного ответа
-                const responses = [
-                    "Спасибо за ваш запрос. Я обрабатываю его с использованием моей базы знаний и RAG-системы для обеспечения точного ответа.",
-                    "Я проанализировал ваш запрос и нашел релевантную информацию в моей базе знаний. Вот что я могу сказать по этому поводу.",
-                    "На основе моей базы знаний, я могу предоставить следующую информацию...",
-                    "Я использовал RAG-поиск для нахождения релевантной информации и подготовки ответа на ваш запрос.",
-                    "Это интересный вопрос. Я нашел несколько релевантных документов в моей базе знаний, которые помогут ответить на него."
-                ];
-                response = responses[Math.floor(Math.random() * responses.length)];
-            }
-            
-            addMessage(response, false);
-        }
-        
-        // Simulate various actions
-        function simulateAction(action) {
-            const actions = {
-                'voice-recognition': 'Запуск распознавания речи...',
-                'image-analysis': 'Анализ изображения запущен...',
-                'data-analysis': 'Начат анализ данных...',
-                'automation': 'Сценарий автоматизации запущен...',
-                'move-forward': 'Робот движется вперед...',
-                'move-backward': 'Робот движется назад...',
-                'turn-left': 'Робот поворачивает влево...',
-                'turn-right': 'Робот поворачивает вправо...',
-                'grab': 'Захват объекта...',
-                'release': 'Отпускание объекта...',
-                'analyze-soil': 'Анализ почвы начат...',
-                'take-picture': 'Фотография сделана...',
-                'record-voice': 'Запись аудио начата...',
-                'generate-report': 'Генерация отчета...',
-                'scan-area': 'Сканирование области...',
-                'monitor': 'Мониторинг запущен...',
-                'secure-mode': 'Безопасный режим активирован...',
-                'emergency-stop': 'Аварийная остановка!'
-            };
-            
-            alert(actions[action] || 'Действие выполнено');
-        }
-        
-        // Update system stats
-        function updateStats() {
-            // Simulate changing values for demo
-            const cpuUsage = Math.floor(Math.random() * 30) + 30; // 30-60%
-            const ramUsed = (Math.random() * 2 + 1).toFixed(1); // 1.0-3.0 GB
-            
-            document.getElementById('cpu-usage').textContent = `CPU: ${cpuUsage}%`;
-            document.getElementById('ram-usage').textContent = `RAM: ${ramUsed}GB`;
-        }
-        
-        // Initialize
-        setInterval(updateStats, 5000);
-        updateStats();
-        
-        // Initialize dashboard as default
-        document.getElementById('dashboard').style.display = 'grid';
-    </script>
+  <header class="topbar container">
+    <a class="brand" href="#hero">Narek</a>
+    <div class="lang-switcher" aria-label="Language switcher">
+      <button class="lang-btn active" data-lang-btn="en">EN</button>
+      <button class="lang-btn" data-lang-btn="ru">RU</button>
+      <button class="lang-btn" data-lang-btn="hy">Հայ</button>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero container" id="hero">
+      <div class="hero-copy">
+        <p class="eyebrow" data-i18n="eyebrow">Builder of useful little systems</p>
+        <h1 data-i18n="hero_title">I build practical tools that solve real problems.</h1>
+        <p class="hero-text" data-i18n="hero_text">Telegram utilities, dashboards, mini-CRM systems, monitoring interfaces, parsers, and fast experiments that become working products.</p>
+        <div class="hero-actions">
+          <a class="btn btn-primary" href="https://github.com/NarekMan21" target="_blank" rel="noreferrer" data-i18n="hero_github">View GitHub</a>
+          <a class="btn btn-secondary" href="#projects" data-i18n="hero_projects">See projects</a>
+        </div>
+      </div>
+      <div class="hero-card">
+        <div class="status-dot"></div>
+        <p class="card-label" data-i18n="card_label">Current focus</p>
+        <h2 data-i18n="card_title">Fast prototyping. Useful tools. Real workflows.</h2>
+        <ul>
+          <li data-i18n="card_item_1">Telegram bots and automation</li>
+          <li data-i18n="card_item_2">Internal dashboards and mini-CRM</li>
+          <li data-i18n="card_item_3">Monitoring and hardware-connected ideas</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="section container" id="about">
+      <div class="section-heading">
+        <p class="section-kicker" data-i18n="about_kicker">About</p>
+        <h2 data-i18n="about_title">Not a corporate brochure. A builder profile.</h2>
+      </div>
+      <div class="about-grid">
+        <p class="about-text" data-i18n="about_text">I like building small, practical systems that go from idea to working prototype fast. My projects usually live somewhere between utility software, Telegram workflows, dashboards, and technical experiments.</p>
+        <div class="chips">
+          <span>Telegram</span>
+          <span>Python</span>
+          <span>TypeScript</span>
+          <span>Next.js</span>
+          <span>FastAPI</span>
+          <span>Dashboards</span>
+          <span>Automation</span>
+          <span>IoT</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="section container" id="projects">
+      <div class="section-heading">
+        <p class="section-kicker" data-i18n="projects_kicker">Selected work</p>
+        <h2 data-i18n="projects_title">Projects that explain the vibe</h2>
+      </div>
+      <div class="projects-grid">
+        <article class="project-card">
+          <div class="project-top">
+            <h3>TG_Peretyazhkoff</h3>
+            <a href="https://github.com/NarekMan21/TG_Peretyazhkoff" target="_blank" rel="noreferrer">GitHub ↗</a>
+          </div>
+          <p data-i18n="project_1">Telegram bot + admin panel for collecting and managing furniture reupholstery leads.</p>
+        </article>
+        <article class="project-card">
+          <div class="project-top">
+            <h3>test-deploy-crm</h3>
+            <a href="https://github.com/NarekMan21/test-deploy-crm" target="_blank" rel="noreferrer">GitHub ↗</a>
+          </div>
+          <p data-i18n="project_2">Role-based CRM for furniture orders, logistics, and workshop workflow.</p>
+        </article>
+        <article class="project-card">
+          <div class="project-top">
+            <h3>tg-downloader-mini-channel</h3>
+            <a href="https://github.com/NarekMan21/tg-downloader-mini-channel" target="_blank" rel="noreferrer">GitHub ↗</a>
+          </div>
+          <p data-i18n="project_3">Windows tool for exporting Telegram channel history into a static HTML archive.</p>
+        </article>
+        <article class="project-card">
+          <div class="project-top">
+            <h3>PH-7-1</h3>
+            <a href="https://github.com/NarekMan21/PH-7-1" target="_blank" rel="noreferrer">GitHub ↗</a>
+          </div>
+          <p data-i18n="project_4">ESP8266-based soil monitoring with dashboard, history, and API endpoints.</p>
+        </article>
+        <article class="project-card">
+          <div class="project-top">
+            <h3>mini-expense</h3>
+            <a href="https://github.com/NarekMan21/mini-expense" target="_blank" rel="noreferrer">GitHub ↗</a>
+          </div>
+          <p data-i18n="project_5">Telegram transaction parser with balance tracking and a lightweight interface.</p>
+        </article>
+        <article class="project-card">
+          <div class="project-top">
+            <h3>telegram-finance-agent</h3>
+            <a href="https://github.com/NarekMan21/telegram-finance-agent" target="_blank" rel="noreferrer">GitHub ↗</a>
+          </div>
+          <p data-i18n="project_6">Telegram-based finance tracker with parser, local storage, and web UI.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="section container" id="contact">
+      <div class="contact-card">
+        <p class="section-kicker" data-i18n="contact_kicker">Contact</p>
+        <h2 data-i18n="contact_title">Want to build something useful?</h2>
+        <p data-i18n="contact_text">Best place to start is GitHub. If you want, you can later add Telegram, email, or a live project link here.</p>
+        <div class="hero-actions">
+          <a class="btn btn-primary" href="https://github.com/NarekMan21" target="_blank" rel="noreferrer">GitHub</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer container">
+    <p>© <span id="year"></span> Narek</p>
+  </footer>
+
+  <script src="script.js"></script>
 </body>
 </html>
