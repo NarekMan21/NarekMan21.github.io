@@ -20,6 +20,7 @@
       <a class="brand" href="#hero">Narek</a>
       <nav class="nav">
         <a href="#projects" data-i18n="nav_projects">Projects</a>
+        <a href="#highlights" data-i18n="nav_highlights">Highlights</a>
         <a href="#approach" data-i18n="nav_approach">Approach</a>
         <a href="#stack" data-i18n="nav_stack">Stack</a>
         <a href="#contact" data-i18n="nav_contact">Contact</a>
@@ -42,19 +43,10 @@
           <a class="btn btn-primary" href="https://github.com/NarekMan21" target="_blank" rel="noreferrer" data-i18n="hero_btn_github">Open GitHub</a>
           <a class="btn btn-secondary" href="#projects" data-i18n="hero_btn_projects">View selected work</a>
         </div>
-        <div class="stats-grid">
-          <div class="stat-card">
-            <strong>Telegram</strong>
-            <span data-i18n="stat_1">Bots, parsers, automation, workflow tools</span>
-          </div>
-          <div class="stat-card">
-            <strong>Web Apps</strong>
-            <span data-i18n="stat_2">Dashboards, mini-CRM, admin panels</span>
-          </div>
-          <div class="stat-card">
-            <strong>Experiments</strong>
-            <span data-i18n="stat_3">IoT, monitoring, weird useful systems</span>
-          </div>
+        <div class="signal-row">
+          <span data-i18n="signal_1">Practical products</span>
+          <span data-i18n="signal_2">Fast prototyping</span>
+          <span data-i18n="signal_3">Real workflows</span>
         </div>
       </div>
       <div class="hero-right">
@@ -68,6 +60,21 @@
             <li data-i18n="feature_item_3">Small systems with clear value</li>
           </ul>
         </div>
+      </div>
+    </section>
+
+    <section class="metrics container">
+      <div class="metric-card">
+        <strong data-i18n="metric_title_1">Telegram-first tooling</strong>
+        <span data-i18n="metric_text_1">Bots, message parsing, automation, lead funnels, finance flows.</span>
+      </div>
+      <div class="metric-card">
+        <strong data-i18n="metric_title_2">Internal products</strong>
+        <span data-i18n="metric_text_2">Mini-CRM systems, admin panels, dashboards, practical business interfaces.</span>
+      </div>
+      <div class="metric-card">
+        <strong data-i18n="metric_title_3">Monitoring & experiments</strong>
+        <span data-i18n="metric_text_3">Hardware-adjacent interfaces, data history, exports, fast technical prototypes.</span>
       </div>
     </section>
 
@@ -88,42 +95,66 @@
         <a class="btn btn-secondary" href="https://github.com/NarekMan21/TG_Peretyazhkoff" target="_blank" rel="noreferrer">GitHub ↗</a>
       </div>
       <div class="projects-grid">
-        <article class="project-card">
+        <article class="project-card accent-a">
           <h3>test-deploy-crm</h3>
           <p data-i18n="project_1">Role-based CRM for order intake, logistics, workshop flow, and delivery tracking.</p>
           <div class="project-meta"><span>Next.js</span><span>FastAPI</span><span>TypeScript</span></div>
           <a href="https://github.com/NarekMan21/test-deploy-crm" target="_blank" rel="noreferrer">GitHub ↗</a>
         </article>
-        <article class="project-card">
+        <article class="project-card accent-b">
           <h3>tg-downloader-mini-channel</h3>
           <p data-i18n="project_2">Windows utility for exporting Telegram channel history into a portable static HTML archive.</p>
           <div class="project-meta"><span>Windows</span><span>Telegram</span><span>HTML Export</span></div>
           <a href="https://github.com/NarekMan21/tg-downloader-mini-channel" target="_blank" rel="noreferrer">GitHub ↗</a>
         </article>
-        <article class="project-card">
+        <article class="project-card accent-c">
           <h3>PH-7-1</h3>
           <p data-i18n="project_3">ESP8266-based monitoring system with dashboard, history, charts, and API endpoints.</p>
           <div class="project-meta"><span>ESP8266</span><span>Node.js</span><span>Charts</span></div>
           <a href="https://github.com/NarekMan21/PH-7-1" target="_blank" rel="noreferrer">GitHub ↗</a>
         </article>
-        <article class="project-card">
+        <article class="project-card accent-d">
           <h3>mini-expense</h3>
           <p data-i18n="project_4">Telegram transaction parser with balance tracking and a lightweight personal finance interface.</p>
           <div class="project-meta"><span>Python</span><span>Telegram</span><span>Finance</span></div>
           <a href="https://github.com/NarekMan21/mini-expense" target="_blank" rel="noreferrer">GitHub ↗</a>
         </article>
-        <article class="project-card">
+        <article class="project-card accent-e">
           <h3>telegram-finance-agent</h3>
           <p data-i18n="project_5">Finance tracker built around Telegram parsing, local storage, and small browser UI.</p>
           <div class="project-meta"><span>Parser</span><span>Web UI</span><span>Local Data</span></div>
           <a href="https://github.com/NarekMan21/telegram-finance-agent" target="_blank" rel="noreferrer">GitHub ↗</a>
         </article>
-        <article class="project-card">
+        <article class="project-card accent-f">
           <h3>clawdbot-interface</h3>
           <p data-i18n="project_6">Experimental AI assistant interface with a visual, glass-style UI direction.</p>
           <div class="project-meta"><span>UI</span><span>HTML</span><span>Experiment</span></div>
           <a href="https://github.com/NarekMan21/clawdbot-interface" target="_blank" rel="noreferrer">GitHub ↗</a>
         </article>
+      </div>
+    </section>
+
+    <section class="section container" id="highlights">
+      <div class="section-head split-head">
+        <div>
+          <p class="kicker" data-i18n="highlights_kicker">Highlights</p>
+          <h2 data-i18n="highlights_title">What tends to show up in my work</h2>
+        </div>
+        <p class="section-note" data-i18n="highlights_note">Not random repo collecting — more like repeated patterns: workflows, small tools, useful interfaces, and systems people actually touch.</p>
+      </div>
+      <div class="highlight-grid">
+        <div class="highlight-card">
+          <h3 data-i18n="highlight_1_title">Operational thinking</h3>
+          <p data-i18n="highlight_1_text">Projects often start from a real process: lead collection, order handling, data export, monitoring, or repetitive manual work.</p>
+        </div>
+        <div class="highlight-card">
+          <h3 data-i18n="highlight_2_title">Telegram as interface</h3>
+          <p data-i18n="highlight_2_text">Bots, parsers, chat-based flows, notifications, and lightweight tooling around actual messaging habits.</p>
+        </div>
+        <div class="highlight-card">
+          <h3 data-i18n="highlight_3_title">Small systems, clear value</h3>
+          <p data-i18n="highlight_3_text">I prefer compact systems with visible utility instead of bloated projects that look bigger than they are.</p>
+        </div>
       </div>
     </section>
 
